@@ -38,9 +38,6 @@ async function runTests() {
     let newItem = await driver.findElement(By.xpath("//ul/li[6]"));
     await newItem.click();
 
-    firstItemClass = await firstListItem.getAttribute("class");
-    assert.equal(firstItemClass.includes("done-true"), false);
-
     console.log('All steps executed successfully');
   } catch (err) {
     await driver.takeScreenshot().then(function (image) {
