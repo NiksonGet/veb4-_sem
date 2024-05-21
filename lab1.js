@@ -8,8 +8,7 @@ async function runTests() {
     await driver.get("https://lambdatest.github.io/sample-todo-app/");
     await driver.manage().window().maximize();
     await driver.sleep(1000);
-
-    // Check page title
+    
     const title = await driver.getTitle();
     assert.equal(title, "Sample page - lambdatest.com");
 
@@ -38,6 +37,9 @@ async function runTests() {
 
     let newItem = await driver.findElement(By.xpath("//ul/li[6]"));
     await newItem.click();
+
+    firstItemClass = await firstListItem.getAttribute("class");
+    assert.equal(firstItemClass.includes("done-true"), false);
 
     console.log('All steps executed successfully');
   } catch (err) {

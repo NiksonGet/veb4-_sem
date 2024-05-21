@@ -1,55 +1,62 @@
 const assert = require('assert');
 const { Builder, By } = require('selenium-webdriver');
 
-let driver = new Builder().forBrowser('chrome').build();
-
 describe('MyTestSuite', function() {
-    it('should load the sample todo app page and perform actions', function() {
-        return (async () => {
-            try {
-                await driver.get("https://lambdatest.github.io/sample-todo-app/");
-                await driver.manage().window().maximize();
-                await driver.sleep(1000);
+    let driver;
 
-                const title = await driver.getTitle();
-                assert.equal(title, "Sample page - lambdatest.com");
+    before(async function() {
+        driver = new Builder().forBrowser('chrome').build();
+    });
 
-                let textElement = await driver.findElement(By.xpath("//span[contains(@class, 'ng-binding')]"));
-                let text = await textElement.getText();
-                assert.equal(text, "5 of 5 remaining");
+    after(async function() {
+        await driver.quit();
+    });
 
-                let firstListItem = await driver.findElement(By.xpath("//ul/li[1]"));
-                let firstItemClass = await firstListItem.getAttribute("class");
-                assert.equal(firstItemClass.includes("done-true"), false);
+    it('should load the sample todo app page and perform actions', async function() {
+        try {
+            await driver.get("https://lambdatest.github.io/sample-todo-app/");
+            await driver.manage().window().maximize();
+            await driver.sleep(1000);
 
-                await driver.findElement(By.xpath("//ul/li[1]/input")).click();
+            const title = await driver.getTitle();
+            assert.equal(title, "Sample page - lambdatest.com");
 
-                firstItemClass = await firstListItem.getAttribute("class");
-                assert.equal(firstItemClass.includes("done-false"), false);
+            let textElement = await driver.findElement(By.xpath("//span[contains(@class, 'ng-binding')]"));
+            let text = await textElement.getText();
+            assert.equal(text, "5 of 5 remaining");
 
-                for (let i = 1; i <= 5; i++) {
-                    let listItem = await driver.findElement(By.xpath(`//ul/li[${i}]`));
-                    await driver.findElement(By.xpath(`//ul/li[${i}]/input`)).click();
-                    let itemClass = await listItem.getAttribute("class");
-                    assert.equal(itemClass.includes("done-false"), false);
-                }
+            let firstListItem = await driver.findElement(By.xpath("//ul/li[1]"));
+            let firstItemClass = await firstListItem.getAttribute("class");
+            assert.equal(firstItemClass.includes("done-true"), false);
 
-                await driver.findElement(By.id("sampletodotext")).sendKeys("New Item");
-                await driver.findElement(By.id("addbutton")).click();
+            await driver.findElement(By.xpath("//ul/li[1]/input")).click();
 
-                let newItem = await driver.findElement(By.xpath("//ul/li[6]"));
-                await newItem.click();
+            firstItemClass = await firstListItem.getAttribute("class");
+            assert.equal(firstItemClass.includes("done-false"), false);
 
-                console.log('All steps executed successfully');
-            } catch (err) {
-                await driver.takeScreenshot().then(function (image) {
-                    require('fs').writeFileSync('screenshot_error.png', image, 'base64');
-                });
-                console.error('Error executing the test: %s', err);
-                throw err; 
-            } finally {
-                await driver.quit();
+            for (let i = 1; i <= 5; i++) {
+                let listItem = await driver.findElement(By.xpath(`//ul/li[${i}]`));
+                await driver.findElement(By.xpath(`//ul/li[${i}]/input`)).click();
+                let itemClass = await listItem.getAttribute("class");
+                assert.equal(itemClass.includes("done-false"), false);
             }
-        })();
+
+            await driver.findElement(By.id("sampletodotext")).sendKeys("New Item");
+            await driver.findElement(By.id("addbutton")).click();
+
+            let newItem = await driver.findElement(By.xpath("//ul/li[6]"));
+            await newItem.click();
+
+            firstItemClass = await firstListItem.getAttribute("class");
+            assert.equal(firstItemClass.includes("done-true"), false);
+
+            console.log('All steps executed successfully');
+        } catch (err) {
+            await driver.takeScreenshot().then(function (image) {
+                require('fs').writeFileSync('screenshot_error.png', image, 'base64');
+            });
+            console.error('Error executing the test: %s', err);
+            throw err; 
+        }
     });
 });
